@@ -16,6 +16,7 @@ import { useCartStore } from "@/lib/store/cartStore";
 import { useWishlistStore } from "@/lib/store/wishlistStore";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { NotificationDropdown } from "@/components/layout/NotificationDropdown";
+import { ProfileDropdown } from "@/components/layout/ProfileDropdown";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -197,32 +198,8 @@ export function Navbar({ user, onOpenSearch }: NavbarProps) {
               )}
             </button>
 
-            {/* 6. Profile Icon (22–24px Icon Size with 44×44px Touch Target) */}
-            {user ? (
-              <Link
-                href={user.role === "ADMIN" ? "/admin" : "/account/profile"}
-                className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors shrink-0"
-                aria-label={`Account profile for ${user.name}`}
-                title={`Account: ${user.name}`}
-              >
-                <div className="relative w-7 h-7 sm:w-7.5 sm:h-7.5 rounded-full bg-brand-500 text-white font-bold flex items-center justify-center text-xs overflow-hidden ring-2 ring-brand-500/40 shadow-xs">
-                  {user.avatar ? (
-                    <Image src={user.avatar} alt={user.name} fill className="object-cover" />
-                  ) : (
-                    <span className="font-display font-black text-xs">{user.name.charAt(0).toUpperCase()}</span>
-                  )}
-                </div>
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors shrink-0"
-                aria-label="Sign In / Profile"
-                title="Sign In / Profile"
-              >
-                <UserIcon className="w-[22px] h-[22px] sm:w-[23px] sm:h-[23px] stroke-[1.8]" />
-              </Link>
-            )}
+            {/* 6. Profile Hover Glassmorphism Dropdown */}
+            <ProfileDropdown user={user} />
           </div>
         </div>
       </header>
