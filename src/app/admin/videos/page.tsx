@@ -18,27 +18,33 @@ export default async function AdminVideosPage() {
     redirect("/login?callbackUrl=/admin/videos");
   }
 
-  const rawVideos = await db.homeVideo.findMany({
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
-  });
+  let videos: any[] = [];
 
-  const videos = rawVideos.map((v) => ({
-    id: v.id,
-    title: v.title,
-    subtitle: v.subtitle,
-    badge: v.badge,
-    videoUrl: v.videoUrl,
-    posterUrl: v.posterUrl,
-    ctaText: v.ctaText,
-    ctaLink: v.ctaLink,
-    secondaryCtaText: v.secondaryCtaText,
-    secondaryCtaLink: v.secondaryCtaLink,
-    specs: v.specs,
-    order: v.order,
-    isActive: v.isActive,
-    createdAt: v.createdAt.toISOString(),
-    updatedAt: v.updatedAt.toISOString(),
-  }));
+  try {
+    const rawVideos = await db.homeVideo.findMany({
+      orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    });
+
+    videos = (rawVideos || []).map((v) => ({
+      id: v.id,
+      title: v.title,
+      subtitle: v.subtitle,
+      badge: v.badge,
+      videoUrl: v.videoUrl,
+      posterUrl: v.posterUrl,
+      ctaText: v.ctaText,
+      ctaLink: v.ctaLink,
+      secondaryCtaText: v.secondaryCtaText,
+      secondaryCtaLink: v.secondaryCtaLink,
+      specs: v.specs,
+      order: v.order,
+      isActive: v.isActive,
+      createdAt: v.createdAt ? new Date(v.createdAt).toISOString() : new Date().toISOString(),
+      updatedAt: v.updatedAt ? new Date(v.updatedAt).toISOString() : new Date().toISOString(),
+    }));
+  } catch (err) {
+    console.error("AdminVideosPage fetch error:", err);
+  }
 
   return <AdminVideosManager initialVideos={videos} />;
 }

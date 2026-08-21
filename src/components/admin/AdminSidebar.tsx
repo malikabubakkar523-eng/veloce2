@@ -140,11 +140,11 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
         {!collapsed && (
           <div className="p-2.5 rounded-2xl bg-zinc-950/60 border border-zinc-800/80 flex items-center gap-3">
             <div className="w-7 h-7 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-              {user.name.charAt(0)}
+              {(user?.name || "A").charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-white truncate">{user.name}</p>
-              <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
+              <p className="text-xs font-bold text-white truncate">{user?.name || "Admin"}</p>
+              <p className="text-[10px] text-zinc-400 font-mono truncate">{user?.email || ""}</p>
             </div>
           </div>
         )}
