@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { GalleryLookbookItem, CURATED_GALLERY_ITEMS } from "@/lib/galleryData";
 import { useToast } from "@/components/ui/ToastProvider";
+import { useLiveSync } from "@/lib/useLiveSync";
 
 interface CategorySection {
   id: "MEN" | "WOMEN" | "KIDS";
@@ -32,9 +33,32 @@ interface CategorySection {
   items: GalleryLookbookItem[];
 }
 
-export function HomeGalleryShowcase({ items }: { items?: any[] }) {
-  const sourceItems: GalleryLookbookItem[] =
-    items && items.length > 0 ? (items as any) : CURATED_GALLERY_ITEMS;
+export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) {
+  const [itemsList, setItemsList] = useState<any[]>(
+    initialItems && initialItems.length > 0 ? initialItems : CURATED_GALLERY_ITEMS
+  );
+
+  React.useEffect(() => {
+    if (initialItems && initialItems.length > 0) {
+      setItemsList(initialItems);
+    }
+  }, [initialItems]);
+
+  useLiveSync("GALLERY", async () => {
+    try {
+      const res = await fetch("/api/content/gallery", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          setItemsList(data.items);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  });
+
+  const sourceItems: GalleryLookbookItem[] = itemsList && itemsList.length > 0 ? itemsList : CURATED_GALLERY_ITEMS;
 
   const [selectedItem, setSelectedItem] = useState<GalleryLookbookItem | null>(null);
   const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});

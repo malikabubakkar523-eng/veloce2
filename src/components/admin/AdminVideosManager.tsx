@@ -22,6 +22,10 @@ import {
   MoveUp,
   MoveDown,
   Loader2,
+  Upload,
+  Video,
+  Image as ImageIcon,
+  Check,
 } from "lucide-react";
 import { useToast } from "@/components/ui/ToastProvider";
 
@@ -51,6 +55,11 @@ export function AdminVideosManager({ initialVideos }: AdminVideosManagerProps) {
   const { toast } = useToast();
   const [videos, setVideos] = useState<HomeVideoItem[]>(initialVideos);
   const [loading, setLoading] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingPoster, setUploadingPoster] = useState(false);
+
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
+  const posterFileInputRef = useRef<HTMLInputElement>(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +81,77 @@ export function AdminVideosManager({ initialVideos }: AdminVideosManagerProps) {
 
   // Live Video Preview modal
   const [previewVideoUrl, setPreviewVideoUrl] = useState<string | null>(null);
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "video" | "poster"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const isVideo = type === "video";
+    const maxSize = isVideo ? 60 * 1024 * 1024 : 15 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      toast({
+        title: "File Too Large",
+        description: isVideo
+          ? "Video size must be under 60MB."
+          : "Poster image size must be under 15MB.",
+        type: "error",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    if (isVideo) setUploadingVideo(true);
+    else setUploadingPoster(true);
+
+    try {
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        if (isVideo) {
+          setVideoUrl(data.url);
+          toast({
+            title: "Video Uploaded Successfully",
+            description: "Showcase video file is processed and ready.",
+            type: "success",
+          });
+        } else {
+          setPosterUrl(data.url);
+          toast({
+            title: "Poster Image Uploaded",
+            description: "Poster preview image attached successfully.",
+            type: "success",
+          });
+        }
+      } else {
+        toast({
+          title: "Upload Failed",
+          description: data.error || "Could not upload media file.",
+          type: "error",
+        });
+      }
+    } catch (err) {
+      toast({
+        title: "Upload Error",
+        description: "Network error during upload.",
+        type: "error",
+      });
+    } finally {
+      setUploadingVideo(false);
+      setUploadingPoster(false);
+      if (videoFileInputRef.current) videoFileInputRef.current.value = "";
+      if (posterFileInputRef.current) posterFileInputRef.current.value = "";
+    }
+  };
 
   const openCreateModal = () => {
     setEditingVideo(null);
@@ -470,29 +550,99 @@ export function AdminVideosManager({ initialVideos }: AdminVideosManagerProps) {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Video Stream / MP4 URL *
-                </label>
+              {/* Hidden File Inputs */}
+              <input
+                ref={videoFileInputRef}
+                type="file"
+                accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-matroska"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "video")}
+              />
+              <input
+                ref={posterFileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/avif,image/gif"
+                className="hidden"
+                onChange={(e) => handleFileUpload(e, "poster")}
+              />
+
+              {/* Video Source File / URL */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-zinc-300">
+                    Video Stream / MP4 Media *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => videoFileInputRef.current?.click()}
+                    disabled={uploadingVideo}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-brand-500/20 hover:bg-brand-500/30 text-brand-400 text-[11px] font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {uploadingVideo ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Uploading Video...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3 h-3" />
+                        <span>{videoUrl ? "Replace Video File" : "Upload Video File (MP4/WebM)"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
                 <input
-                  type="url"
+                  type="text"
                   required
                   value={videoUrl}
                   onChange={(e) => setVideoUrl(e.target.value)}
-                  placeholder="https://assets.mixkit.co/videos/preview/...mp4"
+                  placeholder="https://assets.mixkit.co/videos/...mp4 or /uploads/video.mp4"
                   className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono"
                 />
+                {videoUrl && (
+                  <div className="p-2.5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between gap-3 text-[11px] text-zinc-400">
+                    <span className="truncate font-mono text-zinc-300">Active Video: {videoUrl}</span>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewVideoUrl(videoUrl)}
+                      className="text-brand-400 hover:text-brand-300 font-semibold shrink-0 cursor-pointer"
+                    >
+                      Test Play
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
-                  Poster Image Fallback URL
-                </label>
+              {/* Poster Image Source File / URL */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-zinc-300">
+                    Poster Image Fallback / Thumbnail
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => posterFileInputRef.current?.click()}
+                    disabled={uploadingPoster}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-[11px] font-semibold transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {uploadingPoster ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Uploading Image...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3 h-3" />
+                        <span>{posterUrl ? "Replace Poster" : "Upload Poster Image"}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
                 <input
-                  type="url"
+                  type="text"
                   value={posterUrl}
                   onChange={(e) => setPosterUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/photo-..."
+                  placeholder="https://images.unsplash.com/... or /uploads/poster.jpg"
                   className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
               </div>

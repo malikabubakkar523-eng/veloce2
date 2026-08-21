@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { broadcastContentUpdate } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +41,8 @@ export async function PATCH(
       },
     });
 
+    broadcastContentUpdate("VIDEO");
+
     return NextResponse.json({ success: true, video: updated });
   } catch (error) {
     console.error("Admin PATCH Video Error:", error);
@@ -64,6 +67,8 @@ export async function DELETE(
     }
 
     await db.homeVideo.delete({ where: { id } });
+
+    broadcastContentUpdate("VIDEO");
 
     return NextResponse.json({ success: true, message: "Video deleted successfully" });
   } catch (error) {

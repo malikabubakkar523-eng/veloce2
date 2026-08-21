@@ -699,10 +699,10 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
                   <div className="pt-1">
                     <input
-                      type="url"
+                      type="text"
                       value={form.videoUrl}
                       onChange={(e) => setForm((prev) => ({ ...prev, videoUrl: e.target.value }))}
-                      placeholder="Or paste direct video stream / CDN URL (https://...mp4)"
+                      placeholder="Or paste direct video stream / CDN URL (https://...mp4 or /uploads/...)"
                       className="w-full px-4 py-2.5 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                     />
                   </div>
@@ -717,7 +717,7 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
                         type="text"
                         value={form.imageUrl}
                         onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
-                        placeholder="Poster image URL (e.g. /images/shop-banner.png)"
+                        placeholder="Poster image URL (e.g. /images/shop-banner.png or /uploads/...)"
                         className="flex-1 px-3 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-300 focus:outline-none focus:ring-1 focus:ring-brand-500"
                       />
                       <button
@@ -789,10 +789,10 @@ export function AdminHeroManager({ initialBanners }: { initialBanners: HeroBanne
 
                     <div className="flex items-center gap-2">
                       <input
-                        type="url"
+                        type="text"
                         value={form.imageUrl}
                         onChange={(e) => setForm((prev) => ({ ...prev, imageUrl: e.target.value }))}
-                        placeholder="Or paste direct hero image URL (https://...)"
+                        placeholder="Or paste direct hero image URL (https://... or /uploads/...)"
                         className="flex-1 px-4 py-2 text-xs rounded-xl border border-zinc-800 bg-zinc-950 text-white focus:outline-none focus:ring-1 focus:ring-brand-500"
                       />
                     </div>

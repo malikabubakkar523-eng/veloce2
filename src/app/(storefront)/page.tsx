@@ -6,7 +6,6 @@ import { HeroBannerSlider } from "@/components/storefront/HeroBannerSlider";
 import { ProductCard } from "@/components/storefront/ProductCard";
 import { DealsCountdown } from "@/components/storefront/DealsCountdown";
 import { HomeGalleryShowcase } from "@/components/storefront/HomeGalleryShowcase";
-import { HomeVideoShowcase } from "@/components/storefront/HomeVideoShowcase";
 import { CinematicFootwearShowcase } from "@/components/storefront/CinematicFootwearShowcase";
 import { AIRecommendedSection } from "@/components/storefront/AIRecommendedSection";
 import { AINewDropsMatchingSection } from "@/components/storefront/AINewDropsMatchingSection";
@@ -181,10 +180,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 3. DEDICATED CINEMATIC FOOTWEAR VIDEO SHOWCASE */}
-      <HomeVideoShowcase />
-
-      {/* 4. EDITORIAL PROMOTIONAL BANNER 1: THE CARBON PROPULSION LAB (Shoe as Background Visual) */}
+      {/* 3. EDITORIAL PROMOTIONAL BANNER 1: THE CARBON PROPULSION LAB (Shoe as Background Visual) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative rounded-3xl overflow-hidden bg-zinc-950 border border-zinc-800 p-6 sm:p-14 lg:p-16 text-white shadow-2xl min-h-[380px] sm:min-h-[420px] flex items-center">
           {/* Subtle Grid Pattern */}

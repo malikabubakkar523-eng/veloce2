@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { broadcastContentUpdate } from "@/lib/sync";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,8 @@ export async function POST(req: NextRequest) {
         isActive: Boolean(isActive),
       },
     });
+
+    broadcastContentUpdate("VIDEO");
 
     return NextResponse.json({ success: true, video: newVideo }, { status: 201 });
   } catch (error) {

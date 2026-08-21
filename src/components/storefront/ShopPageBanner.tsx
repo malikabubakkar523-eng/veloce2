@@ -42,6 +42,12 @@ export function ShopPageBanner({
     }
   );
 
+  React.useEffect(() => {
+    if (initialBanner) {
+      setBanner(initialBanner);
+    }
+  }, [initialBanner]);
+
   // Live Sync: updates immediately when Admin saves new video or image
   useLiveSync("SHOP_BANNER", async () => {
     try {
@@ -74,7 +80,7 @@ export function ShopPageBanner({
             muted
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             className="w-full h-full object-cover object-center"
           />
         ) : (

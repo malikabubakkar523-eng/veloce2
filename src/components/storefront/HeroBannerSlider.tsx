@@ -36,6 +36,12 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
 
+  useEffect(() => {
+    if (initialSlides) {
+      setSlides(initialSlides);
+    }
+  }, [initialSlides]);
+
   // Live Sync Subscription: instantly updates hero slides when admin changes them in another browser
   useLiveSync("HERO", async () => {
     try {
@@ -164,7 +170,7 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
                 muted
                 loop
                 playsInline
-                preload="metadata"
+                preload="auto"
                 className="w-full h-full object-cover object-center"
               />
             ) : (

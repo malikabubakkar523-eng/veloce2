@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -17,6 +17,7 @@ import {
   Layers,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useLiveSync } from "@/lib/useLiveSync";
 
 export interface VideoShowcaseProps {
   video?: {
@@ -33,27 +34,50 @@ export interface VideoShowcaseProps {
   } | null;
 }
 
-export function CinematicFootwearShowcase({ video }: VideoShowcaseProps) {
+export function CinematicFootwearShowcase({ video: initialVideo }: VideoShowcaseProps) {
+  const [currentVideo, setCurrentVideo] = useState(initialVideo);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(true);
   const [activeSpec, setActiveSpec] = useState<number>(0);
 
+  // Sync state if initial prop changes
+  useEffect(() => {
+    setCurrentVideo(initialVideo);
+  }, [initialVideo]);
+
+  // Live Sync: updates immediately whenever Admin uploads, updates, or deletes videos
+  useLiveSync("VIDEO", async () => {
+    try {
+      const res = await fetch("/api/content/videos", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.videos && data.videos.length > 0) {
+          setCurrentVideo(data.videos[0]);
+        } else {
+          setCurrentVideo(null);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  });
+
   const videoUrl =
-    video?.videoUrl ||
+    currentVideo?.videoUrl ||
     "https://assets.mixkit.co/videos/preview/mixkit-athlete-getting-ready-to-run-on-the-track-42525-large.mp4";
   const posterUrl =
-    video?.posterUrl ||
+    currentVideo?.posterUrl ||
     "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1600&q=85";
-  const title = video?.title || "ENGINEERED TO OUTPACE GRAVITY.";
+  const title = currentVideo?.title || "ENGINEERED TO OUTPACE GRAVITY.";
   const subtitle =
-    video?.subtitle ||
+    currentVideo?.subtitle ||
     "Every curve, seam, and carbon fibre strand is optimized inside our high-velocity biomechanical test chambers. Experience uninterrupted forward thrust.";
-  const badge = video?.badge || "PROPULSION IN MOTION";
-  const ctaText = video?.ctaText || "EXPLORE MARATHON RACERS";
-  const ctaLink = video?.ctaLink || "/shop?category=running";
-  const secondaryCtaText = video?.secondaryCtaText || "View Full Lookbook";
-  const secondaryCtaLink = video?.secondaryCtaLink || "/gallery";
+  const badge = currentVideo?.badge || "PROPULSION IN MOTION";
+  const ctaText = currentVideo?.ctaText || "EXPLORE MARATHON RACERS";
+  const ctaLink = currentVideo?.ctaLink || "/shop?category=running";
+  const secondaryCtaText = currentVideo?.secondaryCtaText || "View Full Lookbook";
+  const secondaryCtaLink = currentVideo?.secondaryCtaLink || "/gallery";
 
   const specs = [
     {
@@ -107,13 +131,14 @@ export function CinematicFootwearShowcase({ video }: VideoShowcaseProps) {
         <div className="relative w-full aspect-[16/10] sm:aspect-[16/8] lg:aspect-[21/9] min-h-[420px] sm:min-h-[480px] lg:min-h-[540px] overflow-hidden flex items-center">
           <video
             ref={videoRef}
+            key={videoUrl}
             src={videoUrl}
             poster={posterUrl}
             autoPlay
             muted={isMuted}
             loop
             playsInline
-            preload="metadata"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
 
