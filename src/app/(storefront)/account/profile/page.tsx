@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function ProfilePage() {
@@ -29,33 +30,57 @@ export default async function ProfilePage() {
     redirect("/login?callbackUrl=/account/profile");
   }
 
-  const [user, wishlistCount, unreadNotifsCount] = await Promise.all([
-    db.user.findUnique({
-      where: { id: session.id },
-      include: {
-        addresses: true,
-        orders: {
-          orderBy: { createdAt: "desc" },
-          take: 4,
-          include: { items: true },
+  let user: any = null;
+  let wishlistCount = 0;
+  let unreadNotifsCount = 0;
+
+  try {
+    const [userData, wCount, nCount] = await Promise.all([
+      db.user.findUnique({
+        where: { id: session.id },
+        include: {
+          addresses: true,
+          orders: {
+            orderBy: { createdAt: "desc" },
+            take: 4,
+            include: { items: true },
+          },
         },
-      },
-    }),
-    db.wishlistItem.count({ where: { userId: session.id } }),
-    db.notification.count({ where: { userId: session.id, isRead: false } }),
-  ]);
+      }),
+      db.wishlistItem.count({ where: { userId: session.id } }),
+      db.notification.count({ where: { userId: session.id, isRead: false } }),
+    ]);
+
+    user = userData;
+    wishlistCount = wCount || 0;
+    unreadNotifsCount = nCount || 0;
+  } catch (error) {
+    console.error("Profile page data fetch error:", error);
+  }
 
   if (!user) {
-    redirect("/login");
+    // If user object not found in DB or error occurred, create a safe fallback from session
+    user = {
+      id: session.id,
+      name: session.name || "Patron",
+      email: session.email || "",
+      phone: null,
+      avatar: session.avatar || null,
+      role: session.role || "CUSTOMER",
+      createdAt: new Date(),
+      addresses: [],
+      orders: [],
+    };
   }
 
   // Calculate Quick Stats
-  const totalOrders = user.orders.length;
-  const activeOrders = user.orders.filter(
-    (o) => o.orderStatus !== "DELIVERED" && o.orderStatus !== "CANCELLED"
+  const ordersList = user.orders || [];
+  const totalOrders = ordersList.length;
+  const activeOrders = ordersList.filter(
+    (o: any) => o.orderStatus !== "DELIVERED" && o.orderStatus !== "CANCELLED"
   ).length;
-  const deliveredOrders = user.orders.filter(
-    (o) => o.orderStatus === "DELIVERED"
+  const deliveredOrders = ordersList.filter(
+    (o: any) => o.orderStatus === "DELIVERED"
   ).length;
 
   return (
@@ -66,9 +91,9 @@ export default async function ProfilePage() {
           {/* Circular Profile Avatar with fallback */}
           <div className="relative w-18 h-18 sm:w-20 sm:h-20 rounded-full bg-zinc-800 border-2 border-brand-500 overflow-hidden flex items-center justify-center font-display font-black text-2xl text-white shadow-2xl shrink-0">
             {user.avatar ? (
-              <Image src={user.avatar} alt={user.name} fill className="object-cover" />
+              <Image src={user.avatar} alt={user.name || "Profile"} fill className="object-cover" />
             ) : (
-              <span>{user.name.charAt(0).toUpperCase()}</span>
+              <span>{(user.name || "Patron").charAt(0).toUpperCase()}</span>
             )}
           </div>
 
@@ -290,7 +315,7 @@ export default async function ProfilePage() {
                 <MapPin className="w-3.5 h-3.5 text-brand-500" />
                 <span>Default Shipping Address</span>
               </div>
-              {user.addresses[0] ? (
+              {user.addresses && user.addresses[0] ? (
                 <div className="text-xs text-zinc-400 space-y-0.5 pt-1">
                   <p className="font-bold text-white">{user.name}</p>
                   <p>{user.addresses[0].street}</p>

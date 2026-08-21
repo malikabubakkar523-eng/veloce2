@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { formatPrice, formatDate, ORDER_STATUSES } from "@/lib/utils";
 import { Package, Truck, ChevronRight, ArrowLeft } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function OrdersHistoryPage() {
@@ -16,13 +17,19 @@ export default async function OrdersHistoryPage() {
     redirect("/login?callbackUrl=/account/orders");
   }
 
-  const orders = await db.order.findMany({
-    where: {
-      OR: [{ userId: session.id }, { customerEmail: session.email }],
-    },
-    orderBy: { createdAt: "desc" },
-    include: { items: true },
-  });
+  let orders: any[] = [];
+
+  try {
+    orders = await db.order.findMany({
+      where: {
+        OR: [{ userId: session.id }, { customerEmail: session.email }],
+      },
+      orderBy: { createdAt: "desc" },
+      include: { items: true },
+    });
+  } catch (error) {
+    console.error("Orders history fetch error:", error);
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">

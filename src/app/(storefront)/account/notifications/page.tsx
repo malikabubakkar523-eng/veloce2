@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { ArrowLeft, Bell } from "lucide-react";
 import { AccountNotificationsClient } from "@/components/storefront/AccountNotificationsClient";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AccountNotificationsPage() {
@@ -15,16 +16,22 @@ export default async function AccountNotificationsPage() {
     redirect("/login?callbackUrl=/account/notifications");
   }
 
-  const notifications = await db.notification.findMany({
-    where: { userId: session.id },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+  let serializedNotifications: any[] = [];
 
-  const serializedNotifications = notifications.map((n) => ({
-    ...n,
-    createdAt: n.createdAt.toISOString(),
-  }));
+  try {
+    const notifications = await db.notification.findMany({
+      where: { userId: session.id },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
+
+    serializedNotifications = notifications.map((n) => ({
+      ...n,
+      createdAt: n.createdAt.toISOString(),
+    }));
+  } catch (error) {
+    console.error("Notifications fetch error:", error);
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-8">

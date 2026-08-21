@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { AccountSettingsClient } from "@/components/storefront/AccountSettingsClient";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AccountSettingsPage() {
@@ -12,21 +13,35 @@ export default async function AccountSettingsPage() {
     redirect("/login?callbackUrl=/account/settings");
   }
 
-  const user = await db.user.findUnique({
-    where: { id: session.id },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      avatar: true,
-      preferredCategories: true,
-      referralSource: true,
-    },
-  });
+  let user: any = null;
+
+  try {
+    user = await db.user.findUnique({
+      where: { id: session.id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        avatar: true,
+        preferredCategories: true,
+        referralSource: true,
+      },
+    });
+  } catch (error) {
+    console.error("Account settings fetch error:", error);
+  }
 
   if (!user) {
-    redirect("/login");
+    user = {
+      id: session.id,
+      name: session.name || "Patron",
+      email: session.email || "",
+      phone: null,
+      avatar: session.avatar || null,
+      preferredCategories: [],
+      referralSource: null,
+    };
   }
 
   return (
