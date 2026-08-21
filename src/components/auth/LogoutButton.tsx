@@ -19,8 +19,7 @@ export function LogoutButton() {
         description: "You have been securely logged out.",
         type: "info",
       });
-      router.push("/login");
-      router.refresh();
+      window.location.href = "/";
     } catch (err) {
       console.error(err);
     } finally {

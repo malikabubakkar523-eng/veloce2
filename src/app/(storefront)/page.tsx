@@ -209,13 +209,31 @@ export default async function HomePage() {
     ]);
 
     heroBanners = data[0] || [];
+    homeVideo = data[7] || null;
+
+    // If no custom hero banners exist, but homeVideo exists, promote video directly to Hero Slider
+    if (heroBanners.length === 0 && homeVideo) {
+      heroBanners = [
+        {
+          id: homeVideo.id || "home-vid-hero",
+          heading: homeVideo.title || "ENGINEERED FOR SUPREME VELOCITY",
+          subtitle: homeVideo.subtitle || "Experience carbon-infused propulsion, hyper-cadence marathon performance, and Italian leather tailoring.",
+          badge: homeVideo.badge || "SPRING / SUMMER 2026 ARCHIVE",
+          imageUrl: homeVideo.posterUrl || "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1600&q=85",
+          videoUrl: homeVideo.videoUrl,
+          mediaType: "video",
+          ctaText: homeVideo.ctaText || "SHOP THE COLLECTION",
+          ctaLink: homeVideo.ctaLink || "/shop",
+        },
+      ];
+    }
+
     categories = data[1] && data[1].length > 0 ? data[1] : CURATED_DEFAULT_CATEGORIES;
     featuredProducts = data[2] && data[2].length > 0 ? data[2] : CURATED_DEFAULT_PRODUCTS;
     newArrivals = data[3] && data[3].length > 0 ? data[3] : CURATED_DEFAULT_PRODUCTS;
     activeDeal = data[4];
     saleProducts = data[5] && data[5].length > 0 ? data[5] : CURATED_DEFAULT_PRODUCTS.slice(0, 4);
     galleryItems = data[6] && data[6].length > 0 ? data[6] : CURATED_GALLERY_ITEMS;
-    homeVideo = data[7] || null;
   } catch (error) {
     console.warn("⚠️ [Prerender Notice] Database query fallback triggered:", error);
     categories = CURATED_DEFAULT_CATEGORIES;

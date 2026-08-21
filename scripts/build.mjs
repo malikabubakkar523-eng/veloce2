@@ -42,10 +42,17 @@ if (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim() === "") {
 }
 
 try {
-  console.log("⚡ [Build Step 1/2] Generating Prisma Client...");
+  console.log("⚡ [Build Step 1/3] Generating Prisma Client...");
   execSync("npx prisma generate", { stdio: "inherit", env: process.env });
 
-  console.log("⚡ [Build Step 2/2] Running Next.js production build...");
+  try {
+    console.log("⚡ [Build Step 2/3] Synchronizing PostgreSQL database schema...");
+    execSync("npx prisma db push --skip-generate --accept-data-loss", { stdio: "inherit", env: process.env });
+  } catch (dbErr) {
+    console.warn("⚠️ [DB Push Notice] Could not push schema during build (DB cold start or read-only), proceeding:", dbErr.message);
+  }
+
+  console.log("⚡ [Build Step 3/3] Running Next.js production build...");
   execSync("npx next build", { stdio: "inherit", env: process.env });
 } catch (error) {
   console.error("❌ [Build Failed]", error.message || error);

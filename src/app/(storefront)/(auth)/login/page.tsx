@@ -78,19 +78,16 @@ function LoginForm() {
           type: "success",
         });
 
-        // Automatic Role-Based Routing
-        if (data.user.role === "ADMIN") {
-          router.push("/admin");
-        } else if (
-          callbackUrl &&
-          callbackUrl !== "/login" &&
-          callbackUrl !== "/register"
-        ) {
-          router.push(callbackUrl);
-        } else {
-          router.push("/");
-        }
-        router.refresh();
+        // Automatic Role-Based Routing to Homepage or Admin
+        const targetUrl =
+          data.user.role === "ADMIN"
+            ? "/admin"
+            : callbackUrl &&
+              callbackUrl !== "/login" &&
+              callbackUrl !== "/register"
+            ? callbackUrl
+            : "/";
+        window.location.href = targetUrl;
       } else {
         const msg = data.error || "Email or password is incorrect.";
         setErrorMessage(msg);
