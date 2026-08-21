@@ -97,11 +97,25 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
     touchEndX.current = null;
   };
 
-  // If no database-configured custom slides, fallback cleanly to existing cinematic shoe background
+  // If no database-configured custom slides, fallback cleanly to direct cinematic video background
   if (!hasCustomSlides) {
     return (
       <section className="relative min-h-[520px] sm:min-h-[580px] lg:min-h-[600px] xl:min-h-[640px] flex items-center pt-2 sm:pt-10 pb-12 sm:pb-20 overflow-hidden bg-zinc-950 text-white select-none">
-        <HeroShoeBackground />
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <video
+            src="https://assets.mixkit.co/videos/preview/mixkit-athlete-getting-ready-to-run-on-the-track-42525-large.mp4"
+            poster="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1600&q=85"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/85 sm:via-zinc-950/70 md:via-zinc-950/50 to-zinc-950/30 pointer-events-none" />
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent pointer-events-none" />
+          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-zinc-950/90 via-zinc-950/50 to-transparent pointer-events-none" />
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
           <div className="max-w-xl lg:max-w-2xl space-y-3.5 sm:space-y-6 text-left -mt-10 sm:mt-0">

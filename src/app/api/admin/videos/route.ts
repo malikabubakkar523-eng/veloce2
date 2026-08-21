@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
 
     const newVideo = await db.homeVideo.create({
       data: {
+        id: crypto.randomUUID(),
         title: String(title).trim(),
         subtitle: subtitle ? String(subtitle).trim() : null,
         badge: badge ? String(badge).trim() : "CINEMATIC FOOTWEAR ATELIER",
@@ -73,8 +74,8 @@ export async function POST(req: NextRequest) {
     broadcastContentUpdate("VIDEO");
 
     return NextResponse.json({ success: true, video: newVideo }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Admin POST Video Error:", error);
-    return NextResponse.json({ error: "Failed to create homepage video" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Failed to create homepage video" }, { status: 500 });
   }
 }

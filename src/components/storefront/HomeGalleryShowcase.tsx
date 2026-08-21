@@ -37,6 +37,11 @@ export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) 
   const [itemsList, setItemsList] = useState<any[]>(
     initialItems && initialItems.length > 0 ? initialItems : CURATED_GALLERY_ITEMS
   );
+  const [activeCategory, setActiveCategory] = useState<"ALL" | "MEN" | "WOMEN" | "KIDS">("ALL");
+  const [selectedItem, setSelectedItem] = useState<GalleryLookbookItem | null>(null);
+  const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     if (initialItems && initialItems.length > 0) {
@@ -58,46 +63,13 @@ export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) 
     }
   });
 
-  const sourceItems: GalleryLookbookItem[] = itemsList && itemsList.length > 0 ? itemsList : CURATED_GALLERY_ITEMS;
+  const sourceItems: GalleryLookbookItem[] =
+    itemsList && itemsList.length > 0 ? itemsList : CURATED_GALLERY_ITEMS;
 
-  const [selectedItem, setSelectedItem] = useState<GalleryLookbookItem | null>(null);
-  const [likedMap, setLikedMap] = useState<Record<string, boolean>>({});
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const { toast } = useToast();
-
-  const menItems = sourceItems.filter((i) => i.category.toUpperCase() === "MEN");
-  const womenItems = sourceItems.filter((i) => i.category.toUpperCase() === "WOMEN");
-  const kidsItems = sourceItems.filter((i) => i.category.toUpperCase() === "KIDS");
-
-  const categories: CategorySection[] = [
-    {
-      id: "MEN",
-      title: "Men's Atelier & High-Performance",
-      subtitle: "Tokyo underground runners, Berlin marathon racers & handcrafted Tuscan leathers",
-      icon: User,
-      badge: "MEN'S SILHOUETTES",
-      color: "text-blue-500 bg-blue-500/10 border-blue-500/20",
-      items: menItems,
-    },
-    {
-      id: "WOMEN",
-      title: "Women's Runway & Studio Luxe",
-      subtitle: "Paris Fashion Week editorials, Milan stagers & high-cadence tempo striders",
-      icon: Sparkles,
-      badge: "WOMEN'S RUNWAY",
-      color: "text-rose-500 bg-rose-500/10 border-rose-500/20",
-      items: womenItems,
-    },
-    {
-      id: "KIDS",
-      title: "Kids & Youth Athletes",
-      subtitle: "Ergonomic arch support, responsive playground bounce & mini mountain explorers",
-      icon: Baby,
-      badge: "KIDS & JUNIOR",
-      color: "text-amber-500 bg-amber-500/10 border-amber-500/20",
-      items: kidsItems,
-    },
-  ];
+  const filteredItems =
+    activeCategory === "ALL"
+      ? sourceItems
+      : sourceItems.filter((i) => (i.category || "").toUpperCase() === activeCategory);
 
   const toggleLike = (e: React.MouseEvent, item: GalleryLookbookItem) => {
     e.stopPropagation();
@@ -112,7 +84,10 @@ export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) 
 
   const shareLook = async (e: React.MouseEvent, item: GalleryLookbookItem) => {
     e.stopPropagation();
-    const url = typeof window !== "undefined" ? `${window.location.origin}/gallery?look=${item.id}` : "";
+    const url =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/gallery?look=${item.id}`
+        : "";
     try {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
@@ -130,7 +105,7 @@ export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) 
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-14">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
       {/* Main Section Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-zinc-200/80 dark:border-zinc-800/80 pb-6">
         <div>
@@ -142,7 +117,7 @@ export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) 
             Style & Performance Gallery
           </h2>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1 max-w-2xl leading-relaxed">
-            Curated styling and high-motion footwear showcases organized by Men&apos;s, Women&apos;s, and Kids silhouettes. Swipe horizontally to explore each category.
+            Curated editorial styling and high-motion footwear showcases across Men&apos;s, Women&apos;s, and Junior silhouettes.
           </p>
         </div>
 
@@ -155,17 +130,122 @@ export function HomeGalleryShowcase({ items: initialItems }: { items?: any[] }) 
         </Link>
       </div>
 
-      {/* Category Rows (Men, Women, Kids in separate horizontal scrolling rails) */}
-      <div className="space-y-10 sm:space-y-12">
-        {categories.map((category) => (
-          <CategoryRail
-            key={category.id}
-            category={category}
-            likedMap={likedMap}
-            toggleLike={toggleLike}
-            onSelect={(item) => setSelectedItem(item)}
-          />
-        ))}
+      {/* Category Filter Pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar">
+        {[
+          { id: "ALL", label: "All Looks", icon: Sparkles },
+          { id: "MEN", label: "Men's Atelier", icon: User },
+          { id: "WOMEN", label: "Women's Runway", icon: Sparkles },
+          { id: "KIDS", label: "Kids & Youth", icon: Baby },
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeCategory === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveCategory(tab.id as any)}
+              className={`px-4 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                isActive
+                  ? "bg-brand-500 text-white shadow-lg shadow-brand-500/20 scale-105"
+                  : "bg-zinc-100 dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-950 dark:hover:text-white border border-zinc-200 dark:border-zinc-800"
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Full-Width Balanced Grid (2 cols mobile, 3 cols tablet, 4 cols desktop) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+        {filteredItems.map((item, index) => {
+          const isLiked = !!likedMap[item.id];
+
+          return (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.03, duration: 0.25 }}
+              onClick={() => setSelectedItem(item)}
+              className="group relative aspect-[4/5] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-200/80 dark:border-zinc-800/80 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer select-none"
+            >
+              {/* Media Layer */}
+              {item.imageUrl && (
+                <Image
+                  src={item.imageUrl}
+                  alt={item.title}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  className="object-cover group-hover:scale-108 transition-transform duration-700 brightness-95 group-hover:brightness-100"
+                />
+              )}
+
+              {/* Dark Vignette Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-black/25 opacity-85 group-hover:opacity-90 transition-opacity" />
+
+              {/* Top Tags & Action */}
+              <div className="absolute top-2.5 inset-x-2.5 z-10 flex items-center justify-between pointer-events-none">
+                <span className="px-2 py-0.5 rounded-full bg-zinc-950/80 backdrop-blur-md text-brand-400 text-[9px] font-bold uppercase tracking-wider border border-zinc-800 shadow-sm">
+                  {item.category === "KIDS"
+                    ? "KIDS"
+                    : item.category === "WOMEN"
+                    ? "WOMEN"
+                    : "MEN"}
+                </span>
+
+                <button
+                  onClick={(e) => toggleLike(e, item)}
+                  className={`p-1.5 rounded-full backdrop-blur-md transition-all pointer-events-auto shadow-sm ${
+                    isLiked
+                      ? "bg-rose-500 text-white scale-110"
+                      : "bg-zinc-950/70 text-zinc-300 hover:text-white hover:bg-zinc-900"
+                  }`}
+                  aria-label="Like look"
+                >
+                  <Heart className={`w-3 h-3 ${isLiked ? "fill-white" : ""}`} />
+                </button>
+              </div>
+
+              {/* Quick View Hover Indicator */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <div className="px-3 py-1.5 rounded-full bg-white/30 backdrop-blur-md text-white text-[11px] font-bold flex items-center gap-1 shadow-lg">
+                  <Eye className="w-3 h-3" />
+                  <span>High-Res</span>
+                </div>
+              </div>
+
+              {/* Bottom Card Content */}
+              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4 z-10 space-y-1">
+                {item.shoeModel && (
+                  <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-brand-500/20 text-brand-300 text-[9px] font-mono border border-brand-500/30 truncate max-w-full">
+                    <Tag className="w-2.5 h-2.5 shrink-0" />
+                    <span className="truncate">{item.shoeModel}</span>
+                  </div>
+                )}
+
+                <h4 className="text-xs sm:text-sm font-bold font-display text-white group-hover:text-brand-300 transition-colors line-clamp-1">
+                  {item.title}
+                </h4>
+
+                <div className="flex items-center justify-between pt-0.5">
+                  <span className="text-[10px] font-semibold text-zinc-300 flex items-center gap-0.5 group-hover:text-white transition-colors">
+                    <span>Lookbook</span>
+                    <ArrowRight className="w-2.5 h-2.5 text-brand-400 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+
+                  {item.likes && (
+                    <span className="text-[9px] font-mono text-zinc-400 flex items-center gap-0.5">
+                      <Heart className="w-2.5 h-2.5 text-rose-500 fill-rose-500" />
+                      {item.likes}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Footer Explore All Banner */}
