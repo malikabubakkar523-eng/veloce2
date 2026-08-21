@@ -11,7 +11,13 @@ export default async function AdminCustomersPage() {
   try {
     users = await db.user.findMany({
       orderBy: { createdAt: "desc" },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        createdAt: true,
         orders: {
           select: { total: true },
         },

@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
 
     const user = await db.user.findUnique({
       where: { email: cleanEmail },
+      select: { id: true },
     });
 
     if (!user) {
@@ -77,6 +78,7 @@ export async function POST(req: NextRequest) {
     await db.user.update({
       where: { id: user.id },
       data: { passwordHash: newPasswordHash },
+      select: { id: true },
     });
 
     // Cleanup OTP tokens

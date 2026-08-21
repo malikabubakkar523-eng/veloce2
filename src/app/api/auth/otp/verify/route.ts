@@ -42,6 +42,13 @@ export async function POST(req: NextRequest) {
       // Find or create user
       let user = await db.user.findUnique({
         where: { email: cleanEmail },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          avatar: true,
+        },
       });
 
       if (!user) {
@@ -58,6 +65,13 @@ export async function POST(req: NextRequest) {
             status: "ACTIVE",
             avatar: userData?.avatar || null,
             lastLoginAt: new Date(),
+          },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            avatar: true,
           },
         });
 
@@ -76,13 +90,18 @@ export async function POST(req: NextRequest) {
         });
       } else {
         // Existing user - update lastLogin and avatar if available
-        await db.user.update({
-          where: { id: user.id },
-          data: {
-            lastLoginAt: new Date(),
-            ...(userData?.avatar && !user.avatar && { avatar: userData.avatar }),
-          },
-        });
+        try {
+          await db.user.update({
+            where: { id: user.id },
+            data: {
+              lastLoginAt: new Date(),
+              ...(userData?.avatar && !user.avatar && { avatar: userData.avatar }),
+            },
+            select: { id: true },
+          });
+        } catch (e) {
+          // ignore
+        }
 
         await recordUserActivity({
           userId: user.id,

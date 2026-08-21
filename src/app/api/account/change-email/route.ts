@@ -25,7 +25,10 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Verify current user & password
-    const user = await db.user.findUnique({ where: { id: session.id } });
+    const user = await db.user.findUnique({
+      where: { id: session.id },
+      select: { id: true, email: true, passwordHash: true },
+    });
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
@@ -43,7 +46,10 @@ export async function PATCH(req: NextRequest) {
     }
 
     // Check if new email is already taken
-    const existing = await db.user.findUnique({ where: { email: cleanNewEmail } });
+    const existing = await db.user.findUnique({
+      where: { email: cleanNewEmail },
+      select: { id: true },
+    });
     if (existing) {
       return NextResponse.json({ error: "This email address is already in use by another account." }, { status: 409 });
     }
@@ -52,6 +58,7 @@ export async function PATCH(req: NextRequest) {
     const updated = await db.user.update({
       where: { id: session.id },
       data: { email: cleanNewEmail },
+      select: { id: true, email: true },
     });
 
     await recordUserActivity({

@@ -29,7 +29,15 @@ export default async function AdminCustomerDetailPage({
   try {
     user = await db.user.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        status: true,
+        phone: true,
+        avatar: true,
+        createdAt: true,
         orders: {
           orderBy: { createdAt: "desc" },
           include: { items: true },

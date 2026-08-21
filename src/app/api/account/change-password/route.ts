@@ -26,7 +26,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "New password must be at least 6 characters long." }, { status: 400 });
     }
 
-    const user = await db.user.findUnique({ where: { id: session.id } });
+    const user = await db.user.findUnique({
+      where: { id: session.id },
+      select: { id: true, passwordHash: true },
+    });
     if (!user) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
@@ -48,6 +51,7 @@ export async function PATCH(req: NextRequest) {
     await db.user.update({
       where: { id: session.id },
       data: { passwordHash: newPasswordHash },
+      select: { id: true },
     });
 
     await recordUserActivity({

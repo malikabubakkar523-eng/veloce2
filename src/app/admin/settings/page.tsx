@@ -2,6 +2,7 @@ import React from "react";
 import { db } from "@/lib/db";
 import { Settings, Shield, Truck, Bell, Store } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminSettingsPage() {

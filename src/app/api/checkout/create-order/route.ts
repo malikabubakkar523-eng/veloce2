@@ -66,7 +66,10 @@ export async function POST(req: NextRequest) {
     // Verify userId if supplied
     let validUserId: string | null = null;
     if (userId) {
-      const userExists = await db.user.findUnique({ where: { id: String(userId) } });
+      const userExists = await db.user.findUnique({
+        where: { id: String(userId) },
+        select: { id: true },
+      });
       if (userExists) validUserId = userExists.id;
     }
 

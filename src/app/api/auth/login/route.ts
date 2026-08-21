@@ -50,11 +50,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
     }
 
-    // Update lastLoginAt
-    await db.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() },
-    });
+    // Update lastLoginAt safely
+    try {
+      await db.user.update({
+        where: { id: user.id },
+        data: { lastLoginAt: new Date() },
+        select: { id: true },
+      });
+    } catch (e) {
+      console.warn("Could not update lastLoginAt:", e);
+    }
 
     // Record successful login activity
     await recordUserActivity({
