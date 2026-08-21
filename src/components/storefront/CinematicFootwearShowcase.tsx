@@ -65,7 +65,7 @@ export function CinematicFootwearShowcase({ video: initialVideo }: VideoShowcase
 
   const videoUrl =
     currentVideo?.videoUrl ||
-    "https://assets.mixkit.co/videos/preview/mixkit-athlete-getting-ready-to-run-on-the-track-42525-large.mp4";
+    "https://flow-content.google/video/80539032-ba2a-45cf-9626-801998cdd22c?Expires=1787332291&KeyName=labs-flow-prod-cdn-key&Signature=0Els_0ql5uQDd6yMxyIzhWRMiBQ";
   const posterUrl =
     currentVideo?.posterUrl ||
     "https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1600&q=85";

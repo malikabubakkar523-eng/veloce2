@@ -103,8 +103,8 @@ export function HeroBannerSlider({ slides: initialSlides }: { slides: HeroSlideD
       <section className="relative min-h-[520px] sm:min-h-[580px] lg:min-h-[600px] xl:min-h-[640px] flex items-center pt-2 sm:pt-10 pb-12 sm:pb-20 overflow-hidden bg-zinc-950 text-white select-none">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <video
-            src="https://assets.mixkit.co/videos/preview/mixkit-athlete-getting-ready-to-run-on-the-track-42525-large.mp4"
-            poster="https://images.unsplash.com/photo-1552346154-21d32810aba3?w=1600&q=85"
+            src="https://flow-content.google/video/81f46eb0-cea5-47ab-8f7f-c34123c49f40?Expires=1787335594&KeyName=labs-flow-prod-cdn-key&Signature=q3atGIo_cTIsaxdY-dxeLXzowvk"
+            poster="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1920&q=85"
             autoPlay
             muted
             loop
