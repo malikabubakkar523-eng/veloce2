@@ -47,6 +47,7 @@ export async function PATCH(
     if (!targetUserId && existingOrder.customerEmail) {
       const matchedUser = await db.user.findUnique({
         where: { email: existingOrder.customerEmail.toLowerCase().trim() },
+        select: { id: true },
       });
       if (matchedUser) {
         targetUserId = matchedUser.id;

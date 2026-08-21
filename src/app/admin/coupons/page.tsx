@@ -2,6 +2,7 @@ import React from "react";
 import { db } from "@/lib/db";
 import { AdminCouponsManager } from "@/components/admin/AdminCouponsManager";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminCouponsPage() {

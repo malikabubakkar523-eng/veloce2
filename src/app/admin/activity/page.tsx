@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import { Activity, ShieldCheck, ShieldAlert, Monitor, Smartphone, Tablet } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminActivityPage() {

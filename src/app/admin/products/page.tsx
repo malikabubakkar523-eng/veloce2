@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils";
 import { Plus, Search, Edit3, ExternalLink, Star } from "lucide-react";
 import { AdminDeleteProductButton } from "@/components/admin/AdminDeleteProductButton";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminProductsPage({

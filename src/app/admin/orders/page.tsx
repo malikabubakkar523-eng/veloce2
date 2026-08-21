@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { formatPrice, formatDate, ORDER_STATUSES } from "@/lib/utils";
 import { ShoppingBag, ChevronRight, Eye } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminOrdersPage({

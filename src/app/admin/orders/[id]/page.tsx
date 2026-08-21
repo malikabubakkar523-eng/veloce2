@@ -7,6 +7,7 @@ import { formatPrice, formatDate, formatDateTime, ORDER_STATUSES } from "@/lib/u
 import { AdminOrderStatusUpdater } from "@/components/admin/AdminOrderStatusUpdater";
 import { ArrowLeft, Package, User, MapPin, CreditCard } from "lucide-react";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function AdminOrderDetailPage({
