@@ -21,23 +21,22 @@ export default async function OnboardingPage() {
     redirect("/login?callbackUrl=/onboarding");
   }
 
-  const user = await db.user.findUnique({
-    where: { id: session.id },
-    select: {
-      id: true,
-      name: true,
-      isOnboarded: true,
-      preferredCategories: true,
-    },
-  });
+  let user: any = null;
 
-  if (!user) {
-    redirect("/login");
+  try {
+    user = await db.user.findUnique({
+      where: { id: session.id },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  } catch (error) {
+    console.error("Onboarding page user check error:", error);
   }
 
-  // If already onboarded or skipped, send directly to homepage
-  if (user.isOnboarded) {
-    redirect("/");
+  if (!user) {
+    user = { id: session.id, name: session.name || "Patron" };
   }
 
   return <FavoriteShoesOnboardingClient userName={user.name} />;

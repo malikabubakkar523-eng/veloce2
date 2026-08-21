@@ -24,10 +24,12 @@ export default async function AccountSettingsPage() {
         email: true,
         phone: true,
         avatar: true,
-        preferredCategories: true,
-        referralSource: true,
       },
     });
+    if (user) {
+      user.preferredCategories = [];
+      user.referralSource = null;
+    }
   } catch (error) {
     console.error("Account settings fetch error:", error);
   }

@@ -38,7 +38,14 @@ export default async function ProfilePage() {
     const [userData, wCount, nCount] = await Promise.all([
       db.user.findUnique({
         where: { id: session.id },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          avatar: true,
+          role: true,
+          createdAt: true,
           addresses: true,
           orders: {
             orderBy: { createdAt: "desc" },

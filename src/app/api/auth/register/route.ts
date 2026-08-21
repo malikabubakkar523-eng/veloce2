@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
 
     const existing = await db.user.findUnique({
       where: { email: cleanEmail },
+      select: { id: true },
     });
 
     if (existing) {

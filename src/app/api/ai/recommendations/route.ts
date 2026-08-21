@@ -53,21 +53,15 @@ export async function GET(req: NextRequest) {
     let userPreferredCategories: string[] = [];
 
     if (session?.id) {
-      const [dbWishlistItems, userData] = await Promise.all([
-        db.wishlistItem.findMany({
+      try {
+        const dbWishlistItems = await db.wishlistItem.findMany({
           where: { userId: session.id },
           select: { productId: true },
-        }),
-        db.user.findUnique({
-          where: { id: session.id },
-          select: { preferredCategories: true },
-        }),
-      ]);
-
-      const dbIds = dbWishlistItems.map((w) => w.productId);
-      userFavoriteIds = Array.from(new Set([...userFavoriteIds, ...dbIds]));
-      if (userData?.preferredCategories && Array.isArray(userData.preferredCategories)) {
-        userPreferredCategories = userData.preferredCategories;
+        });
+        const dbIds = dbWishlistItems.map((w) => w.productId);
+        userFavoriteIds = Array.from(new Set([...userFavoriteIds, ...dbIds]));
+      } catch (e) {
+        // ignore
       }
     }
 
@@ -151,21 +145,15 @@ export async function POST(req: NextRequest) {
     let userPreferredCategories: string[] = [];
 
     if (session?.id) {
-      const [dbWishlistItems, userData] = await Promise.all([
-        db.wishlistItem.findMany({
+      try {
+        const dbWishlistItems = await db.wishlistItem.findMany({
           where: { userId: session.id },
           select: { productId: true },
-        }),
-        db.user.findUnique({
-          where: { id: session.id },
-          select: { preferredCategories: true },
-        }),
-      ]);
-
-      const dbIds = dbWishlistItems.map((w) => w.productId);
-      userFavoriteIds = Array.from(new Set([...userFavoriteIds, ...dbIds]));
-      if (userData?.preferredCategories && Array.isArray(userData.preferredCategories)) {
-        userPreferredCategories = userData.preferredCategories;
+        });
+        const dbIds = dbWishlistItems.map((w) => w.productId);
+        userFavoriteIds = Array.from(new Set([...userFavoriteIds, ...dbIds]));
+      } catch (e) {
+        // ignore
       }
     }
 

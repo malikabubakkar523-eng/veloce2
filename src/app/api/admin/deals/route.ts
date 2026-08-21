@@ -45,7 +45,6 @@ async function dispatchDealNotifications(dealId: string) {
         email: true,
         dealNotifs: true,
         promoEmails: true,
-        preferredCategories: true,
         wishlist: {
           include: {
             product: {
@@ -81,7 +80,7 @@ async function dispatchDealNotifications(dealId: string) {
       });
 
       // Check onboarding category preferences
-      const hasPrefMatch = (c.preferredCategories || []).some((pref) =>
+      const hasPrefMatch = ((c as any).preferredCategories || []).some((pref: string) =>
         dealText.includes(pref.toLowerCase())
       );
 
